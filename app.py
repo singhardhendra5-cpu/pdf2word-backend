@@ -15,7 +15,7 @@ def convert():
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files["file"]
-    if not file.filename or not file.filename.lower().endswith(".pdf"):
+    if not file.filename.lower().endswith(".pdf"):
         return jsonify({"error": "Only PDF files are supported"}), 400
 
     job_id = str(uuid.uuid4())
