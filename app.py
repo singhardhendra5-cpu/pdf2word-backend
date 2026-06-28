@@ -32,6 +32,9 @@ def init_db():
     conn.close()
 
 
+init_db()  # <-- yahan call hota hai, file load hote hi (gunicorn ke saath bhi)
+
+
 def log_conversion(filename, status):
     conn = get_db_connection()
     conn.execute(
@@ -98,6 +101,5 @@ def health():
 
 
 if __name__ == "__main__":
-    init_db()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
