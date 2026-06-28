@@ -10,6 +10,8 @@ CORS(app)
 UPLOAD_DIR = "/tmp/conversions"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 DB_NAME = "conversions.db"
+MAX_FILE_SIZE_MB = 5
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 
 def get_db_connection():
@@ -32,7 +34,7 @@ def init_db():
     conn.close()
 
 
-init_db()  # <-- yahan call hota hai, file load hote hi (gunicorn ke saath bhi)
+init_db()
 
 
 def log_conversion(filename, status):
@@ -53,6 +55,16 @@ def convert():
     file = request.files["file"]
     if not file.filename.lower().endswith(".pdf"):
         return jsonify({"error": "Only PDF files are supported"}), 400
+
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0)
+
+    if file_size > MAX_FILE_SIZE_BYTES:
+        return jsonify({
+            "error": f"File too large. Maximum allowed size is {MAX_FILE_SIZE_MB}MB. "
+                     f"Your file is {round(file_size / (1024*1024), 2)}MB."
+        }), 413
 
     job_id = str(uuid.uuid4())
     pdf_path = f"{UPLOAD_DIR}/{job_id}.pdf"
