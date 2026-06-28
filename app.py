@@ -49,6 +49,15 @@ def log_conversion(filename, status):
 
 @app.route("/convert", methods=["POST"])
 def convert():
+    api_key = request.headers.get("X-API-Key")
+    expected_key = os.environ.get("API_SECRET_KEY")
+
+    if not expected_key:
+        return jsonify({"error": "Server not configured properly"}), 500
+
+    if api_key != expected_key:
+        return jsonify({"error": "Unauthorized - invalid or missing API key"}), 401
+
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
