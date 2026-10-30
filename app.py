@@ -49,8 +49,8 @@ def log_conversion(filename, status):
 
 @app.route("/convert", methods=["POST"])
 def convert():
-    api_key = request.headers.get("X-API-Key")
-    expected_key = os.environ.get("API_SECRET_KEY")
+    api_key = (request.headers.get("X-API-Key") or "").strip()
+    expected_key = (os.environ.get("API_SECRET_KEY") or "").strip()
 
     if not expected_key:
         return jsonify({"error": "Server not configured properly"}), 500
